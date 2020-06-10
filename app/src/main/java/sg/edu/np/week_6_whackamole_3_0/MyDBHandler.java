@@ -12,7 +12,8 @@ import java.util.ArrayList;
 public class MyDBHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "WhackAMole.db";
-    public static final String TABLE_PRODUCTS = "user";
+    public static final String TABLE_PRODUCTS = "USER";
+    public static final String ID = "ID";
     public static final String COLUMN_USERNAME = "username";
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_LEVEL = "level";
@@ -71,7 +72,10 @@ public class MyDBHandler extends SQLiteOpenHelper {
             Log.v(TAG, "DB Created: " + CREATE_ACCOUNTS_TABLE);
          */
 
+        String CREATE_PRODUCTS_TABLE = "CREATE TABLE " + TABLE_PRODUCTS +
+                "(ID INTEGER PRIMARY KEY AUTOINCREMENT, Username TEXT, Password TEXT, Level TEXT, Score TEXT)";
 
+        db.execSQL(CREATE_PRODUCTS_TABLE);
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
@@ -96,30 +100,18 @@ public class MyDBHandler extends SQLiteOpenHelper {
         values.put(COLUMN_PASSWORD,userData.getMyPassword());
         values.put(COLUMN_LEVEL,String.valueOf(userData.getLevels()));
         values.put(COLUMN_SCORE,String.valueOf(userData.getScores()));
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.insert(TABLE_PRODUCTS, null, values);
+
+        Log.v(TAG, FILENAME + ": Adding data for Database: " + values.toString());
+
+        db.close();
+
 
     }
 
-    public UserData findUser(String username) {
-        /* HINT:
-            This finds the user that is specified and returns the data information if it is found.
-            If not found, it will return a null.
-            Log.v(TAG, FILENAME +": Find user form database: " + query);
-
-            The following should be used in getting the query data.
-            you may modify the code to suit your design.
-
-            if(cursor.moveToFirst()){
-                do{
-                    ...
-                    .....
-                    ...
-                }while(cursor.moveToNext());
-                Log.v(TAG, FILENAME + ": QueryData: " + queryData.getLevels().toString() + queryData.getScores().toString());
-            }
-            else{
-                Log.v(TAG, FILENAME+ ": No data found!");
-            }
-         */
+    public Boolean findUser(String username) {
         String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE "
                 + COLUMN_USERNAME
                 + " = \"" + username + "\"";
@@ -128,17 +120,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
 
         Cursor cursor = db.rawQuery(query, null);
 
-        UserData user = new UserData();
-        if (cursor.moveToFirst()) {
-            user.setMyUserName(username);
-            cursor.close();
-        }
-        else {
-           user = null;
-            Log.v(TAG, FILENAME+ ": No data found!");
-        }
-        db.close();
-        return user;
+        if(cursor.getCount()>0) return false;
+        else return true;
     } //findProduct
 
 
