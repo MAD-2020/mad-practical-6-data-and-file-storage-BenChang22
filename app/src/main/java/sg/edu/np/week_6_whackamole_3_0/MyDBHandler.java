@@ -10,6 +10,15 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class MyDBHandler extends SQLiteOpenHelper {
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "WhackAMole.db";
+    public static final String TABLE_PRODUCTS = "user";
+    public static final String COLUMN_USERNAME = "username";
+    public static final String COLUMN_PASSWORD = "password";
+    public static final String COLUMN_LEVEL = "level";
+    public static final String COLUMN_SCORE = "score";
+
+
     /*
         The Database has the following properties:
         1. Database name is WhackAMole.db
@@ -51,6 +60,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
         /* HINT:
             This is used to init the database.
          */
+        super(context,DATABASE_NAME,factory,DATABASE_VERSION);
+
     }
     @Override
     public void onCreate(SQLiteDatabase db)
@@ -60,13 +71,18 @@ public class MyDBHandler extends SQLiteOpenHelper {
             Log.v(TAG, "DB Created: " + CREATE_ACCOUNTS_TABLE);
          */
 
+
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
         /* HINT:
             This is triggered if there is a new version found. ALL DATA are replaced and irreversible.
+
          */
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+        onCreate(db);
+
     }
 
     public void addUser(UserData userData)
@@ -75,10 +91,15 @@ public class MyDBHandler extends SQLiteOpenHelper {
                 This adds the user to the database based on the information given.
                 Log.v(TAG, FILENAME + ": Adding data for Database: " + values.toString());
              */
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME,userData.getMyUserName());
+        values.put(COLUMN_PASSWORD,userData.getMyPassword());
+        values.put(COLUMN_LEVEL,String.valueOf(userData.getLevels()));
+        values.put(COLUMN_SCORE,String.valueOf(userData.getScores()));
+
     }
 
-    public UserData findUser(String username)
-    {
+    public UserData findUser(String username) {
         /* HINT:
             This finds the user that is specified and returns the data information if it is found.
             If not found, it will return a null.
@@ -99,7 +120,28 @@ public class MyDBHandler extends SQLiteOpenHelper {
                 Log.v(TAG, FILENAME+ ": No data found!");
             }
          */
-    }
+        String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE "
+                + COLUMN_USERNAME
+                + " = \"" + username + "\"";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        UserData user = new UserData();
+        if (cursor.moveToFirst()) {
+            user.setMyUserName(username);
+            cursor.close();
+        }
+        else {
+           user = null;
+            Log.v(TAG, FILENAME+ ": No data found!");
+        }
+        db.close();
+        return user;
+    } //findProduct
+
+
 
     public boolean deleteAccount(String username) {
         /* HINT:
@@ -107,6 +149,26 @@ public class MyDBHandler extends SQLiteOpenHelper {
             This is not reversible.
             Log.v(TAG, FILENAME + ": Database delete user: " + query);
          */
+        boolean result = false;
+
+        String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE "
+                + COLUMN_USERNAME + " = \""
+                + username+ "\"";
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        UserData user = new UserData();
+        if (cursor.moveToFirst()) {
+            user.setMyUserName(username);
+            db.delete(TABLE_PRODUCTS, COLUMN_USERNAME + " = ?",
+                    new String[] { String.valueOf(user.getMyUserName()) });
+            cursor.close();
+            result = true;
+        }
+        db.close();
+        return result;
+
 
     }
 }

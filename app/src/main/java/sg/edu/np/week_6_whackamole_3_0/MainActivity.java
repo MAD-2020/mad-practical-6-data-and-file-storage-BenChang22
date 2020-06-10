@@ -23,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String FILENAME = "MainActivity.java";
     private static final String TAG = "Whack-A-Mole3.0!";
+    private EditText user;
+    private EditText password;
+    private Button login;
+    private TextView signup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, FILENAME + ": Invalid user!");
 
         */
+        user = findViewById(R.id.user_EditText);
+        password = findViewById(R.id.password_editText);
+        isValidUser(user.toString(),password.toString());
+        onClick(signup);
 
 
     }
@@ -54,6 +62,23 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, FILENAME + ": Running Checks..." + dbData.getMyUserName() + ": " + dbData.getMyPassword() +" <--> "+ userName + " " + password);
             You may choose to use this or modify to suit your design.
          */
+        MyDBHandler dbHandler = new MyDBHandler(this,null,null,1);
+        UserData name = dbHandler.findUser(user.getText().toString());
+
+
+
+    }
+
+    public void onClick(View view){
+        signup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            /*intent to go to sign up page*/
+            public void onClick(View v) {
+                Intent signUp =  new Intent(MainActivity.this,Main2Activity.class);
+                Log.v(TAG,"signing up");
+                startActivity(signUp);
+            }
+        });
 
     }
 
