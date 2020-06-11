@@ -20,5 +20,6 @@ public class CustomScoreViewHolder extends RecyclerView.ViewHolder {
         /* Hint:
         This method dictates the viewholder contents and links the widget to the objects for manipulation.
          */
+
     }
 }

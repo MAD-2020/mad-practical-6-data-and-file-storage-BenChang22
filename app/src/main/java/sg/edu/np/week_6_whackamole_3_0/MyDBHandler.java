@@ -111,17 +111,22 @@ public class MyDBHandler extends SQLiteOpenHelper {
 
     }
 
-    public Boolean findUser(String username) {
+    public UserData findUser(String username) {
         String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE "
                 + COLUMN_USERNAME
                 + " = \"" + username + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
-
+        UserData us = new UserData();
         Cursor cursor = db.rawQuery(query, null);
 
-        if(cursor.getCount()>0) return false;
-        else return true;
+        if (cursor.moveToFirst()) {
+            us.setMyUserName(cursor.getString(0));
+            us.setMyPassword(cursor.getString(1));
+            return us;
+        }
+        return null;
+
     } //findProduct
 
 

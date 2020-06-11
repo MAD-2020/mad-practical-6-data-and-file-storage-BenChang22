@@ -3,6 +3,8 @@ package sg.edu.np.week_6_whackamole_3_0;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String FILENAME = "MainActivity.java";
     private static final String TAG = "Whack-A-Mole3.0!";
     private EditText user;
-    private EditText password;
+    private EditText passEdit;
     private Button login;
-    private TextView signup;
-
+    private TextView signUp;
+    MyDBHandler db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,9 +45,27 @@ public class MainActivity extends AppCompatActivity {
 
         */
         user = findViewById(R.id.user_EditText);
-        password = findViewById(R.id.password_editText);
-        isValidUser(user.toString(),password.toString());
-        onClick(signup);
+        passEdit = findViewById(R.id.password_editText);
+        login = findViewById(R.id.login_button);
+        signUp = findViewById(R.id.signUp);
+        db = new MyDBHandler(this,null,null,1);
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isValidUser(user.getText().toString(),passEdit.getText().toString())) {
+                    Intent intent = new Intent(MainActivity.this,Main3Activity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    user.setText("");
+                    passEdit.setText("");
+                    invalidEntry();
+                }
+            }
+        });
+
+        onClick(signUp);
 
 
     }
@@ -55,22 +75,33 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    public boolean isValidUser(String userName, String password){
+    public boolean isValidUser(String userName, String password) {
+        UserData us = db.findUser(user.getText().toString());
+        if (us != null) {
+            if (us.getMyUserName().equals(user.getText().toString()) && us.getMyPassword().equals(passEdit.getText().toString()))
+                ;
+            {
+                return true;
+            }
 
-        /* HINT:
-            This method is called to access the database and return a true if user is valid and false if not.
-            Log.v(TAG, FILENAME + ": Running Checks..." + dbData.getMyUserName() + ": " + dbData.getMyPassword() +" <--> "+ userName + " " + password);
-            You may choose to use this or modify to suit your design.
-         */
-        MyDBHandler dbHandler = new MyDBHandler(this,null,null,1);
-        UserData name = dbHandler.findUser(user.getText().toString());
-
-
+        }
+        else {
+            return false;
+        }
 
     }
 
+
+    public void invalidEntry(){
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Invalid username or password",
+                Toast.LENGTH_SHORT);
+
+        toast.show();
+    }
+
     public void onClick(View view){
-        signup.setOnClickListener(new View.OnClickListener() {
+        signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             /*intent to go to sign up page*/
             public void onClick(View v) {
